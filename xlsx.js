@@ -7927,7 +7927,17 @@ function write_ws_xml(idx, opts, wb) {
     tabSelected: opts.tabSelected === undefined ? '0' : opts.tabSelected,  // see issue #26, need to set WorkbookViews if this is set
     workbookViewId: opts.workbookViewId === undefined ? '0' : opts.workbookViewId
   });
-  o[o.length] = writextag('sheetViews', sheetView);
+  // Does not support RTL
+  // o[o.length] = writextag('sheetViews', sheetView);
+
+  // Always RTL
+  // o[o.length] = writextag("sheetViews", writextag("sheetView", null, {workbookViewId:"0", rightToLeft: "1"}), {});
+
+  // Check if RTL or LTR defined in Workbook.Views[{RTL:...}]
+  var sview = {workbookViewId:"0"};
+  var isRTL = (((wb||{}).Workbook||{}).Views||[])[0];
+  if( isRTL ) sview.rightToLeft = wb.Workbook.Views[0].RTL ? "1" : "0";
+  o[o.length] = writextag("sheetViews", writextag("sheetView", null, sview), {});
 
   if (ws['!cols'] !== undefined && ws['!cols'].length > 0) o[o.length] = (write_ws_xml_cols(ws, ws['!cols']));
   o[sidx = o.length] = '<sheetData/>';
